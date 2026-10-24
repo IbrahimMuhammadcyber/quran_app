@@ -29,14 +29,9 @@ jobs:
       - name: Fix Kotlin version
         run: |
           if [ -f android/settings.gradle.kts ]; then
-            echo "Found settings.gradle.kts"
-            sed -i 's/id("org.jetbrains.kotlin.android") version "[^"]*"/id("org.jetbrains.kotlin.android") version "1.9.22"/' android/settings.gradle.kts
+            sed -i 's/id("org.jetbrains.kotlin.android") version "[^"]*"/id("org.jetbrains.kotlin.android") version "2.2.20"/' android/settings.gradle.kts
           elif [ -f android/settings.gradle ]; then
-            echo "Found settings.gradle"
-            sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
-          else
-            echo "Neither file found. Listing android/ contents:"
-            ls -la android/
+            sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "2.2.20"/' android/settings.gradle
           fi
 
       - name: Install dependencies
