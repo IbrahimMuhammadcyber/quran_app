@@ -27,7 +27,7 @@ jobs:
         run: flutter create . --platforms=android
 
       - name: Fix Kotlin version
-        run: sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.22'/" android/build.gradle
+        run: sed -i "s/id \"org.jetbrains.kotlin.android\" version \"[^\"]*\"/id \"org.jetbrains.kotlin.android\" version \"1.9.22\"/" android/settings.gradle
 
       - name: Install dependencies
         run: flutter pub get
