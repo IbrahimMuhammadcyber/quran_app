@@ -4,6 +4,7 @@ import '../models/surah.dart';
 import '../services/quran_api_service.dart';
 import '../services/audio_player_service.dart';
 import '../widgets/mini_player.dart';
+import 'settings_screen.dart';
 
 class SurahListScreen extends StatefulWidget {
   const SurahListScreen({super.key});
@@ -41,8 +42,14 @@ class _SurahListScreenState extends State<SurahListScreen> {
               icon: const Icon(Icons.timer_outlined, color: Colors.white70),
               onPressed: () {}),
           IconButton(
-              icon: const Icon(Icons.settings_outlined, color: Colors.white70),
-              onPressed: () {}),
+            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
         ],
       ),
       body: FutureBuilder<List<Surah>>(
@@ -67,8 +74,7 @@ class _SurahListScreenState extends State<SurahListScreen> {
               return _SurahTile(
                 surah: surah,
                 onTap: () {
-                  final url = _api.audioUrlFor(surah.number);
-                  player.playSurah(surah, url, queue: surahs);
+                  player.playSurah(surah, queue: surahs);
                 },
               );
             },
