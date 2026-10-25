@@ -40,6 +40,35 @@ jobs:
             sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "2.2.20"/' android/settings.gradle
           fi
 
+      - name: Enable core library desugaring
+        run: |
+          python3 - <<'EOF'
+          import re, os
+
+          kts_path = "android/app/build.gradle.kts"
+          groovy_path = "android/app/build.gradle"
+
+          if os.path.exists(kts_path):
+              path = kts_path
+              compile_block = '    compileOptions {\n        isCoreLibraryDesugaringEnabled = true\n    }\n'
+              dep_line = '    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")\n'
+          else:
+              path = groovy_path
+              compile_block = '    compileOptions {\n        coreLibraryDesugaringEnabled true\n    }\n'
+              dep_line = "    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'\n"
+
+          with open(path) as f:
+              content = f.read()
+
+          content = re.sub(r'(android\s*\{)', r'\1\n' + compile_block, content, count=1)
+          content = re.sub(r'(dependencies\s*\{)', r'\1\n' + dep_line, content, count=1)
+
+          with open(path, 'w') as f:
+              f.write(content)
+
+          print(f"Patched {path} for core library desugaring")
+          EOF
+
       - name: Install dependencies
         run: flutter pub get
 
