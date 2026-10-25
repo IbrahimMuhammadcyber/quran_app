@@ -41,6 +41,38 @@ jobs:
             fi
           done
 
+      - name: Add audio_service manifest entries
+        run: |
+          python3 - <<'EOF'
+          path = "android/app/src/main/AndroidManifest.xml"
+
+          with open(path) as f:
+              content = f.read()
+
+          service_block = '''        <service android:name="com.ryanheise.audioservice.AudioService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+        <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+    </application>'''
+
+          if 'com.ryanheise.audioservice.AudioService' not in content:
+              content = content.replace('    </application>', service_block)
+
+          with open(path, 'w') as f:
+              f.write(content)
+
+          print("Patched AndroidManifest.xml with audio_service entries")
+          EOF
+
       - name: Fix Kotlin version
         run: |
           if [ -f android/settings.gradle.kts ]; then
