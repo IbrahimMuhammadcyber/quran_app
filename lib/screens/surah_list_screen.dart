@@ -5,6 +5,7 @@ import '../services/quran_api_service.dart';
 import '../services/audio_player_service.dart';
 import '../widgets/mini_player.dart';
 import 'settings_screen.dart';
+import 'search_screen.dart';
 
 class SurahListScreen extends StatefulWidget {
   const SurahListScreen({super.key});
@@ -16,6 +17,7 @@ class SurahListScreen extends StatefulWidget {
 class _SurahListScreenState extends State<SurahListScreen> {
   final QuranApiService _api = QuranApiService();
   late Future<List<Surah>> _surahsFuture;
+  List<Surah> _loadedSurahs = [];
 
   @override
   void initState() {
@@ -23,24 +25,87 @@ class _SurahListScreenState extends State<SurahListScreen> {
     _surahsFuture = _api.fetchSurahList();
   }
 
+  void _showSleepTimerSheet(BuildContext context) {
+    final player = context.read<AudioPlayerService>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      builder: (context) {
+        final options = [5, 10, 15, 30, 45, 60];
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Sleep Timer',
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
+              ),
+              ...options.map((minutes) => ListTile(
+                    title: Text('$minutes minutes',
+                        style: const TextStyle(color: Colors.white)),
+                    onTap: () {
+                      player.startSleepTimer(Duration(minutes: minutes));
+                      Navigator.pop(context);
+                    },
+                  )),
+              if (player.sleepTimerDuration != null)
+                ListTile(
+                  title: const Text('Cancel timer',
+                      style: TextStyle(color: Colors.redAccent)),
+                  onTap: () {
+                    player.cancelSleepTimer();
+                    Navigator.pop(context);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final player = context.watch<AudioPlayerService>();
+    final reciterName = reciters
+        .firstWhere((r) => r.id == player.reciter,
+            orElse: () => reciters.first)
+        .name;
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
-        title: const Text('Tilawah',
-    style: TextStyle(color: Colors.white70, fontSize: 18)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Tilawah',
+                style: TextStyle(color: Colors.white70, fontSize: 18)),
+            if (player.currentSurah != null)
+              Text(reciterName,
+                  style: const TextStyle(
+                      color: Colors.white38, fontSize: 11)),
+          ],
+        ),
         actions: [
           IconButton(
-              icon: const Icon(Icons.search, color: Colors.white70),
-              onPressed: () {}),
+            icon: const Icon(Icons.search, color: Colors.white70),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SearchScreen(allSurahs: _loadedSurahs),
+                ),
+              );
+            },
+          ),
           IconButton(
-              icon: const Icon(Icons.timer_outlined, color: Colors.white70),
-              onPressed: () {}),
+            icon: const Icon(Icons.timer_outlined, color: Colors.white70),
+            onPressed: () => _showSleepTimerSheet(context),
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Colors.white70),
             onPressed: () {
@@ -65,6 +130,7 @@ class _SurahListScreenState extends State<SurahListScreen> {
             );
           }
           final surahs = snapshot.data!;
+          _loadedSurahs = surahs;
           return ListView.separated(
             itemCount: surahs.length,
             separatorBuilder: (_, __) =>
