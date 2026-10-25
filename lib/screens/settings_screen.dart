@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/audio_player_service.dart';
+import '../services/prayer_service.dart';
 
 class Reciter {
   final String id;
@@ -18,8 +19,53 @@ const List<Reciter> reciters = [
   Reciter('ar.saoodshuraym', 'Saood Ash-Shuraym', Colors.brown),
 ];
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final PrayerService _prayerService = PrayerService();
+  final _latController = TextEditingController();
+  final _lngController = TextEditingController();
+  bool _prayerEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrayerSettings();
+  }
+
+  Future<void> _loadPrayerSettings() async {
+    final loc = await _prayerService.getLocation();
+    final enabled = await _prayerService.isEnabled();
+    if (loc != null) {
+      _latController.text = loc['lat'].toString();
+      _lngController.text = loc['lng'].toString();
+    }
+    if (mounted) setState(() => _prayerEnabled = enabled);
+  }
+
+  Future<void> _savePrayerSettings(bool enabled) async {
+    final lat = double.tryParse(_latController.text);
+    final lng = double.tryParse(_lngController.text);
+    if (lat == null || lng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid latitude and longitude')),
+      );
+      return;
+    }
+    await _prayerService.saveLocation(lat, lng);
+    await _prayerService.setEnabled(enabled);
+    setState(() => _prayerEnabled = enabled);
+
+    if (enabled) {
+      await _prayerService.requestPermission();
+      await _prayerService.scheduleTodayNotifications(lat, lng);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +105,54 @@ class SettingsScreen extends StatelessWidget {
                   if (value != null) player.setReciter(value);
                 },
               )),
+          const Divider(color: Colors.white12, height: 32),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text('Prayer Notifications',
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold)),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _latController,
+                  style: const TextStyle(color: Colors.white),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true, signed: true),
+                  decoration: const InputDecoration(
+                    labelText: 'Latitude',
+                    labelStyle: TextStyle(color: Colors.white54),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white24)),
+                  ),
+                ),
+                TextField(
+                  controller: _lngController,
+                  style: const TextStyle(color: Colors.white),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true, signed: true),
+                  decoration: const InputDecoration(
+                    labelText: 'Longitude',
+                    labelStyle: TextStyle(color: Colors.white54),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white24)),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  activeColor: Colors.amber,
+                  title: const Text('Enable prayer notifications',
+                      style: TextStyle(color: Colors.white)),
+                  value: _prayerEnabled,
+                  onChanged: _savePrayerSettings,
+                ),
+              ],
+            ),
+          ),
           const Divider(color: Colors.white12, height: 32),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
