@@ -6,45 +6,23 @@ manifest_path = "android/app/src/main/AndroidManifest.xml"
 with open(manifest_path) as f:
     manifest = f.read()
 
-permissions = [
-    "android.permission.INTERNET",
-    "android.permission.POST_NOTIFICATIONS",
-    "android.permission.FOREGROUND_SERVICE",
-    "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
-    "android.permission.WAKE_LOCK",
-]
-
-for perm in permissions:
-    if perm not in manifest:
-        manifest = manifest.replace(
-            "<application",
-            f'    <uses-permission android:name="{perm}" />\n    <application',
-            1,
-        )
-
-if "com.ryanheise.audioservice.AudioService" not in manifest:
-    service_block = (
-        '        <service android:name="com.ryanheise.audioservice.AudioService"\n'
-        '            android:foregroundServiceType="mediaPlayback"\n'
-        '            android:exported="true">\n'
-        '            <intent-filter>\n'
-        '                <action android:name="android.media.browse.MediaBrowserService" />\n'
-        '            </intent-filter>\n'
-        '        </service>\n'
-        '        <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"\n'
-        '            android:exported="true">\n'
-        '            <intent-filter>\n'
-        '                <action android:name="android.intent.action.MEDIA_BUTTON" />\n'
-        '            </intent-filter>\n'
-        '        </receiver>\n'
-        '    </application>'
+if "android.permission.INTERNET" not in manifest:
+    manifest = manifest.replace(
+        "<application",
+        '    <uses-permission android:name="android.permission.INTERNET" />\n    <application',
+        1,
     )
-    manifest = manifest.replace("    </application>", service_block, 1)
+if "android.permission.POST_NOTIFICATIONS" not in manifest:
+    manifest = manifest.replace(
+        "<application",
+        '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <application',
+        1,
+    )
 
 with open(manifest_path, "w") as f:
     f.write(manifest)
 
-print("AndroidManifest.xml patched (permissions + audio_service entries)")
+print("AndroidManifest.xml patched (permissions)")
 
 kts_path = "android/app/build.gradle.kts"
 groovy_path = "android/app/build.gradle"
