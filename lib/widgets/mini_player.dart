@@ -12,13 +12,13 @@ class MiniPlayer extends StatelessWidget {
     return '$m:$s';
   }
 
-  IconData _repeatIcon(RepeatMode mode) {
+  IconData _repeatIcon(TilawahRepeatMode mode) {
     switch (mode) {
-      case RepeatMode.off:
+      case TilawahRepeatMode.off:
         return Icons.repeat;
-      case RepeatMode.all:
+      case TilawahRepeatMode.all:
         return Icons.repeat_on;
-      case RepeatMode.one:
+      case TilawahRepeatMode.one:
         return Icons.repeat_one_on;
     }
   }
@@ -97,7 +97,7 @@ class MiniPlayer extends StatelessWidget {
             children: [
               IconButton(
                 icon: Icon(_repeatIcon(player.repeatMode),
-                    color: player.repeatMode == RepeatMode.off
+                    color: player.repeatMode == TilawahRepeatMode.off
                         ? Colors.white38
                         : Colors.amber,
                     size: 20),
