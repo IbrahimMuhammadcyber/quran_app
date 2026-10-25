@@ -3,10 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/surah.dart';
 import 'quran_api_service.dart';
+import 'storage_service.dart';
 
 class AudioPlayerService extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
   final QuranApiService _api = QuranApiService();
+  final StorageService storage = StorageService();
 
   Surah? _currentSurah;
   List<Surah> _queue = [];
@@ -14,6 +16,7 @@ class AudioPlayerService extends ChangeNotifier {
   String _reciter = 'ar.alafasy';
   Timer? _sleepTimer;
   Duration? _sleepTimerDuration;
+  Timer? _positionSaveTimer;
 
   Surah? get currentSurah => _currentSurah;
   bool get isPlaying => _player.playing;
@@ -30,6 +33,18 @@ class AudioPlayerService extends ChangeNotifier {
         playNext();
       }
     });
+    _positionSaveTimer =
+        Timer.periodic(const Duration(seconds: 5), (_) => _savePosition());
+  }
+
+  void _savePosition() {
+    if (_currentSurah != null) {
+      storage.saveLastPlayed(
+        surahNumber: _currentSurah!.number,
+        reciter: _reciter,
+        positionMs: _player.position.inMilliseconds,
+      );
+    }
   }
 
   void setReciter(String reciterId) {
@@ -37,14 +52,26 @@ class AudioPlayerService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playSurah(Surah surah, {List<Surah>? queue}) async {
+  Future<void> playSurah(Surah surah,
+      {List<Surah>? queue, Duration? startAt}) async {
     _currentSurah = surah;
     if (queue != null) {
       _queue = queue;
       _queueIndex = queue.indexWhere((s) => s.number == surah.number);
     }
-    final url = _api.audioUrlFor(surah.number, reciter: _reciter);
-    await _player.setUrl(url);
+
+    final localPath =
+        await storage.localPathIfDownloaded(_reciter, surah.number);
+    if (localPath != null) {
+      await _player.setFilePath(localPath);
+    } else {
+      final url = _api.audioUrlFor(surah.number, reciter: _reciter);
+      await _player.setUrl(url);
+    }
+
+    if (startAt != null) {
+      await _player.seek(startAt);
+    }
     await _player.play();
     notifyListeners();
   }
@@ -89,9 +116,13 @@ class AudioPlayerService extends ChangeNotifier {
     notifyListeners();
   }
 
+  String audioUrlForDownload(int surahNumber) =>
+      _api.audioUrlFor(surahNumber, reciter: _reciter);
+
   @override
   void dispose() {
     _sleepTimer?.cancel();
+    _positionSaveTimer?.cancel();
     _player.dispose();
     super.dispose();
   }
