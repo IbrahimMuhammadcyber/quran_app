@@ -16,8 +16,7 @@ dependencies:
 
   # Audio playback (handles background audio + lock-screen controls)
   just_audio: ^0.9.36
-  audio_service: ^0.18.12
-
+  
   # State management
   provider: ^6.1.1
 
