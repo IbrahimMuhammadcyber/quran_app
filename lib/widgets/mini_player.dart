@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/audio_player_service.dart';
+import '../services/audio_handler.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -11,6 +12,17 @@ class MiniPlayer extends StatelessWidget {
     return '$m:$s';
   }
 
+  IconData _repeatIcon(RepeatMode mode) {
+    switch (mode) {
+      case RepeatMode.off:
+        return Icons.repeat;
+      case RepeatMode.all:
+        return Icons.repeat_on;
+      case RepeatMode.one:
+        return Icons.repeat_one_on;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final player = context.watch<AudioPlayerService>();
@@ -19,7 +31,7 @@ class MiniPlayer extends StatelessWidget {
 
     return Container(
       color: const Color(0xFF1A1A1A),
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -72,47 +84,63 @@ class MiniPlayer extends StatelessWidget {
               );
             },
           ),
-          SizedBox(
-            height: 64,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.amber,
-                    child: Icon(Icons.person, color: Colors.black54),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '${surah.nameTransliteration} • ${surah.nameArabic}',
-                      style: const TextStyle(color: Colors.white70),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_previous,
-                        color: Colors.white70),
-                    onPressed: player.playPrevious,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      player.isPlaying
-                          ? Icons.pause_circle_filled
-                          : Icons.play_circle_filled,
-                      color: Colors.white,
-                      size: 36,
-                    ),
-                    onPressed: player.togglePlayPause,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_next, color: Colors.white70),
-                    onPressed: player.playNext,
-                  ),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              '${surah.nameTransliteration} • ${surah.nameArabic}',
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+              overflow: TextOverflow.ellipsis,
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                icon: Icon(_repeatIcon(player.repeatMode),
+                    color: player.repeatMode == RepeatMode.off
+                        ? Colors.white38
+                        : Colors.amber,
+                    size: 20),
+                onPressed: player.cycleRepeatMode,
+              ),
+              IconButton(
+                icon: const Icon(Icons.replay_10,
+                    color: Colors.white70, size: 22),
+                onPressed: () =>
+                    player.seekRelative(const Duration(seconds: -10)),
+              ),
+              IconButton(
+                icon: const Icon(Icons.skip_previous, color: Colors.white70),
+                onPressed: player.playPrevious,
+              ),
+              IconButton(
+                icon: Icon(
+                  player.isPlaying
+                      ? Icons.pause_circle_filled
+                      : Icons.play_circle_filled,
+                  color: Colors.white,
+                  size: 36,
+                ),
+                onPressed: player.togglePlayPause,
+              ),
+              IconButton(
+                icon: const Icon(Icons.skip_next, color: Colors.white70),
+                onPressed: player.playNext,
+              ),
+              IconButton(
+                icon: const Icon(Icons.forward_10,
+                    color: Colors.white70, size: 22),
+                onPressed: () =>
+                    player.seekRelative(const Duration(seconds: 10)),
+              ),
+              IconButton(
+                icon: Icon(Icons.shuffle,
+                    color:
+                        player.shuffleEnabled ? Colors.amber : Colors.white38,
+                    size: 20),
+                onPressed: player.toggleShuffle,
+              ),
+            ],
           ),
         ],
       ),
