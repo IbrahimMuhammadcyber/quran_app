@@ -26,7 +26,7 @@ class AudioPlayerService extends ChangeNotifier {
   Stream<Duration> get positionStream => handler.player.positionStream;
   String get reciter => handler.reciter;
   Duration? get sleepTimerDuration => _sleepTimerDuration;
-  RepeatMode get repeatMode => handler.repeatMode;
+  TilawahRepeatMode get repeatMode => handler.repeatMode;
   bool get shuffleEnabled => handler.shuffleEnabled;
 
   void setReciter(String reciterId) {
@@ -59,10 +59,10 @@ class AudioPlayerService extends ChangeNotifier {
   }
 
   void cycleRepeatMode() {
-    final modes = RepeatMode.values;
+    final modes = TilawahRepeatMode.values;
     final next =
         modes[(modes.indexOf(handler.repeatMode) + 1) % modes.length];
-    handler.setRepeatMode(next);
+    handler.setLoopMode(next);
     notifyListeners();
   }
 
