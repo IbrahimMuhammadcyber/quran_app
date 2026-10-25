@@ -4,7 +4,7 @@ import '../models/surah.dart';
 import 'quran_api_service.dart';
 import 'storage_service.dart';
 
-enum RepeatMode { off, all, one }
+enum TilawahRepeatMode { off, all, one }
 
 class TilawahAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   final AudioPlayer player = AudioPlayer();
@@ -15,7 +15,7 @@ class TilawahAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandle
   List<int> _playOrder = [];
   int _orderPos = 0;
   String _reciter = 'ar.alafasy';
-  RepeatMode _repeatMode = RepeatMode.off;
+  TilawahRepeatMode _repeatMode = TilawahRepeatMode.off;
   bool _shuffle = false;
 
   Surah? get currentSurah =>
@@ -23,7 +23,7 @@ class TilawahAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandle
           ? _surahQueue[_playOrder[_orderPos]]
           : null;
   String get reciter => _reciter;
-  RepeatMode get repeatMode => _repeatMode;
+  TilawahRepeatMode get repeatMode => _repeatMode;
   bool get shuffleEnabled => _shuffle;
 
   TilawahAudioHandler() {
@@ -75,7 +75,7 @@ class TilawahAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandle
     _reciter = reciterId;
   }
 
-  void setRepeatMode(RepeatMode mode) {
+  void setLoopMode(TilawahRepeatMode mode) {
     _repeatMode = mode;
   }
 
@@ -154,7 +154,7 @@ class TilawahAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandle
     var next = _orderPos + direction;
     if (next < 0) next = 0;
     if (next >= _playOrder.length) {
-      if (_repeatMode == RepeatMode.all) {
+      if (_repeatMode == TilawahRepeatMode.all) {
         next = 0;
       } else {
         return;
@@ -166,7 +166,7 @@ class TilawahAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandle
   }
 
   Future<void> _onTrackComplete() async {
-    if (_repeatMode == RepeatMode.one) {
+    if (_repeatMode == TilawahRepeatMode.one) {
       await player.seek(Duration.zero);
       await player.play();
       return;
