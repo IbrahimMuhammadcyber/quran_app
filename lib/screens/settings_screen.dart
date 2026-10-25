@@ -5,16 +5,17 @@ import '../services/audio_player_service.dart';
 class Reciter {
   final String id;
   final String name;
-  const Reciter(this.id, this.name);
+  final Color color;
+  const Reciter(this.id, this.name, this.color);
 }
 
 const List<Reciter> reciters = [
-  Reciter('ar.alafasy', 'Mishary Rashid Alafasy'),
-  Reciter('ar.abdulbasitmurattal', 'Abdul Basit (Murattal)'),
-  Reciter('ar.husary', 'Mahmoud Khalil Al-Husary'),
-  Reciter('ar.minshawi', 'Mohamed Siddiq El-Minshawi'),
-  Reciter('ar.abdurrahmaansudais', 'Abdur-Rahman As-Sudais'),
-  Reciter('ar.shaatree', 'Abu Bakr Ash-Shaatree'),
+  Reciter('ar.alafasy', 'Mishary Rashid Alafasy', Colors.teal),
+  Reciter('ar.abdulbasitmurattal', 'Abdul Basit (Murattal)', Colors.indigo),
+  Reciter('ar.minshawi', 'Mohamed Siddiq El-Minshawi', Colors.deepOrange),
+  Reciter('ar.abdurrahmaansudais', 'Abdur-Rahman As-Sudais', Colors.green),
+  Reciter('ar.shaatree', 'Abu Bakr Ash-Shaatree', Colors.purple),
+  Reciter('ar.saoodshuraym', 'Saood Ash-Shuraym', Colors.brown),
 ];
 
 class SettingsScreen extends StatelessWidget {
@@ -46,6 +47,12 @@ class SettingsScreen extends StatelessWidget {
                 value: r.id,
                 groupValue: player.reciter,
                 activeColor: Colors.amber,
+                secondary: CircleAvatar(
+                  backgroundColor: r.color,
+                  child: Text(r.name[0],
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
                 title: Text(r.name,
                     style: const TextStyle(color: Colors.white)),
                 onChanged: (value) {
