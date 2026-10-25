@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/surah_list_screen.dart';
 import 'services/audio_player_service.dart';
+import 'services/prayer_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PrayerService().init();
   runApp(const QuranApp());
 }
 
