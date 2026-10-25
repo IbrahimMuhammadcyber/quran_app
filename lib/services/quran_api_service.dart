@@ -17,7 +17,9 @@ class QuranApiService {
     return surahs.map((s) => Surah.fromJson(s)).toList();
   }
 
+  // Redirect-based endpoint: resolves the correct file/bitrate per reciter
+  // automatically, instead of guessing a bitrate ourselves.
   String audioUrlFor(int surahNumber, {String reciter = 'ar.alafasy'}) {
-    return 'https://cdn.islamic.network/quran/audio-surah/128/$reciter/$surahNumber.mp3';
+    return 'https://api.islamic.app/v1/audio/surah/$reciter/$surahNumber';
   }
 }
