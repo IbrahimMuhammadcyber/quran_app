@@ -1,5 +1,5 @@
-name: quran_app
-description: A Quran listening and reading app with prayer time features.
+name: tilawah
+description: Tilawah — a Quran listening and reading app with prayer time features.
 publish_to: 'none'
 version: 1.0.0+1
 
