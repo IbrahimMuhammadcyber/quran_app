@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/audio_player_service.dart';
 import '../services/prayer_service.dart';
+import '../services/location_service.dart';
 
 class Reciter {
   final String id;
@@ -28,9 +29,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final PrayerService _prayerService = PrayerService();
+  final LocationService _locationService = LocationService();
   final _latController = TextEditingController();
   final _lngController = TextEditingController();
   bool _prayerEnabled = false;
+  bool _locating = false;
 
   @override
   void initState() {
@@ -46,6 +49,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _lngController.text = loc['lng'].toString();
     }
     if (mounted) setState(() => _prayerEnabled = enabled);
+  }
+
+  Future<void> _useCurrentLocation() async {
+    setState(() => _locating = true);
+    try {
+      final position = await _locationService.getCurrentLocation();
+      setState(() {
+        _latController.text = position.latitude.toString();
+        _lngController.text = position.longitude.toString();
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => _locating = false);
+    }
   }
 
   Future<void> _savePrayerSettings(bool enabled) async {
@@ -118,11 +139,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
+                ElevatedButton.icon(
+                  onPressed: _locating ? null : _useCurrentLocation,
+                  icon: _locating
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.black),
+                        )
+                      : const Icon(Icons.my_location),
+                  label: Text(
+                      _locating ? 'Locating...' : 'Use my current location'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.black),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _latController,
                   style: const TextStyle(color: Colors.white),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true, signed: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true, signed: true),
                   decoration: const InputDecoration(
                     labelText: 'Latitude',
                     labelStyle: TextStyle(color: Colors.white54),
@@ -133,8 +171,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 TextField(
                   controller: _lngController,
                   style: const TextStyle(color: Colors.white),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true, signed: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true, signed: true),
                   decoration: const InputDecoration(
                     labelText: 'Longitude',
                     labelStyle: TextStyle(color: Colors.white54),
