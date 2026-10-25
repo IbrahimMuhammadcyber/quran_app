@@ -15,7 +15,7 @@ class QuranApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => AudioPlayerService(),
       child: MaterialApp(
-        title: 'Salah Buddy',
+        title: 'Tilawah',
         debugShowCheckedModeBanner: false,
         theme: ThemeData.dark().copyWith(
           scaffoldBackgroundColor: const Color(0xFF121212),
