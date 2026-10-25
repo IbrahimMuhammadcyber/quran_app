@@ -32,8 +32,8 @@ class _SurahListScreenState extends State<SurahListScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
-        title: const Text('Salah Buddy',
-            style: TextStyle(color: Colors.white70, fontSize: 18)),
+        title: const Text('Tilawah',
+    style: TextStyle(color: Colors.white70, fontSize: 18)),
         actions: [
           IconButton(
               icon: const Icon(Icons.search, color: Colors.white70),
