@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/surah.dart';
@@ -11,6 +12,8 @@ class AudioPlayerService extends ChangeNotifier {
   List<Surah> _queue = [];
   int _queueIndex = 0;
   String _reciter = 'ar.alafasy';
+  Timer? _sleepTimer;
+  Duration? _sleepTimerDuration;
 
   Surah? get currentSurah => _currentSurah;
   bool get isPlaying => _player.playing;
@@ -18,6 +21,7 @@ class AudioPlayerService extends ChangeNotifier {
   Duration? get totalDuration => _player.duration;
   Stream<Duration> get positionStream => _player.positionStream;
   String get reciter => _reciter;
+  Duration? get sleepTimerDuration => _sleepTimerDuration;
 
   AudioPlayerService() {
     _player.playerStateStream.listen((state) {
@@ -68,8 +72,26 @@ class AudioPlayerService extends ChangeNotifier {
 
   Future<void> seek(Duration position) => _player.seek(position);
 
+  void startSleepTimer(Duration duration) {
+    _sleepTimer?.cancel();
+    _sleepTimerDuration = duration;
+    _sleepTimer = Timer(duration, () {
+      _player.pause();
+      _sleepTimerDuration = null;
+      notifyListeners();
+    });
+    notifyListeners();
+  }
+
+  void cancelSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimerDuration = null;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
+    _sleepTimer?.cancel();
     _player.dispose();
     super.dispose();
   }
