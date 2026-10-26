@@ -18,6 +18,18 @@ if "android.permission.POST_NOTIFICATIONS" not in manifest:
         '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <application',
         1,
     )
+if "android.permission.ACCESS_FINE_LOCATION" not in manifest:
+    manifest = manifest.replace(
+        "<application",
+        '    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <application',
+        1,
+    )
+if "android.permission.ACCESS_COARSE_LOCATION" not in manifest:
+    manifest = manifest.replace(
+        "<application",
+        '    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <application',
+        1,
+    )
 
 with open(manifest_path, "w") as f:
     f.write(manifest)
