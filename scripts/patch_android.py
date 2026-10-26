@@ -86,3 +86,37 @@ with open(spath, "w") as f:
     f.write(scontent)
 
 print(f"Patched {spath} for Kotlin version")
+
+proguard_path = "android/app/proguard-rules.pro"
+proguard_rules = (
+    "-keep class com.dexterous.** { *; }\n"
+    "-keepattributes Signature\n"
+    "-keepattributes *Annotation*\n"
+    "-dontwarn com.dexterous.**\n"
+    "-keep class androidx.work.** { *; }\n"
+)
+with open(proguard_path, "w") as f:
+    f.write(proguard_rules)
+print("Created proguard-rules.pro")
+
+if os.path.exists(kts_path):
+    bpath = kts_path
+    proguard_insert = '            proguardFiles(\n                getDefaultProguardFile("proguard-android-optimize.txt"),\n                "proguard-rules.pro"\n            )\n'
+else:
+    bpath = groovy_path
+    proguard_insert = "            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\n"
+
+with open(bpath) as f:
+    bcontent = f.read()
+
+if "proguard-rules.pro" not in bcontent:
+    release_match = re.search(r"(release\s*\{)", bcontent)
+    if release_match:
+        bcontent = bcontent[:release_match.end()] + "\n" + proguard_insert + bcontent[release_match.end():]
+        with open(bpath, "w") as f:
+            f.write(bcontent)
+        print(f"Added proguardFiles reference to {bpath}")
+    else:
+        print("Could not find release block to patch proguardFiles")
+else:
+    print("proguardFiles already referenced")
