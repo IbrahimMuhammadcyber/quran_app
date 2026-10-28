@@ -1,3 +1,4 @@
+import 'prayer_times_screen.dart';
 import 'package:flutter/material.dart';
 import 'surah_list_screen.dart';
 import 'read_surah_list_screen.dart';
