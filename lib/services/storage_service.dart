@@ -8,6 +8,9 @@ class StorageService {
   static const _lastReciterKey = 'last_reciter';
   static const _lastPositionKey = 'last_position_ms';
   static const _downloadedKey = 'downloaded_files';
+  static const _favoritesKey = 'favorite_surahs';
+  static const _lastReadSurahKey = 'last_read_surah';
+  static const _lastReadAyahKey = 'last_read_ayah';
 
   Future<void> saveLastPlayed({
     required int surahNumber,
@@ -108,5 +111,42 @@ class StorageService {
     final list = prefs.getStringList(_downloadedKey) ?? [];
     list.remove(_keyFor(reciter, surahNumber));
     await prefs.setStringList(_downloadedKey, list);
+  }
+
+  Future<Set<int>> getFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_favoritesKey) ?? [];
+    return list.map(int.parse).toSet();
+  }
+
+  Future<bool> isFavorite(int surahNumber) async {
+    final favorites = await getFavorites();
+    return favorites.contains(surahNumber);
+  }
+
+  Future<void> toggleFavorite(int surahNumber) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_favoritesKey) ?? [];
+    final key = surahNumber.toString();
+    if (list.contains(key)) {
+      list.remove(key);
+    } else {
+      list.add(key);
+    }
+    await prefs.setStringList(_favoritesKey, list);
+  }
+
+  Future<void> saveLastRead(int surahNumber, int ayahNumber) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_lastReadSurahKey, surahNumber);
+    await prefs.setInt(_lastReadAyahKey, ayahNumber);
+  }
+
+  Future<Map<String, int>?> getLastRead() async {
+    final prefs = await SharedPreferences.getInstance();
+    final surahNumber = prefs.getInt(_lastReadSurahKey);
+    final ayahNumber = prefs.getInt(_lastReadAyahKey);
+    if (surahNumber == null || ayahNumber == null) return null;
+    return {'surahNumber': surahNumber, 'ayahNumber': ayahNumber};
   }
 }
