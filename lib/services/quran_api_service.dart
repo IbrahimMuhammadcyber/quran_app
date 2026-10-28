@@ -64,19 +64,27 @@ class QuranApiService {
     return data['data']['text'] as String;
   }
 
+  /// The juz endpoint does not support combining two editions in one
+  /// request the way the surah endpoint does, so Arabic text and
+  /// translation are fetched as two separate calls and paired up here.
   Future<List<JuzAyah>> fetchJuz(int juzNumber) async {
-    final url = Uri.parse(
-        '$_baseUrl/juz/$juzNumber/editions/quran-uthmani,en.sahih');
-    final response = await http.get(url);
+    final arabicUrl = Uri.parse('$_baseUrl/juz/$juzNumber/quran-uthmani');
+    final translationUrl = Uri.parse('$_baseUrl/juz/$juzNumber/en.sahih');
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load juz (${response.statusCode})');
+    final responses = await Future.wait([
+      http.get(arabicUrl),
+      http.get(translationUrl),
+    ]);
+
+    if (responses[0].statusCode != 200 || responses[1].statusCode != 200) {
+      throw Exception('Failed to load juz');
     }
 
-    final data = json.decode(response.body);
-    final List<dynamic> editions = data['data'];
-    final arabicAyahs = editions[0]['ayahs'] as List<dynamic>;
-    final translationAyahs = editions[1]['ayahs'] as List<dynamic>;
+    final arabicData = json.decode(responses[0].body);
+    final translationData = json.decode(responses[1].body);
+    final arabicAyahs = arabicData['data']['ayahs'] as List<dynamic>;
+    final translationAyahs =
+        translationData['data']['ayahs'] as List<dynamic>;
 
     final List<JuzAyah> result = [];
     for (var i = 0; i < arabicAyahs.length; i++) {
