@@ -120,3 +120,29 @@ if "proguard-rules.pro" not in bcontent:
         print("Could not find release block to patch proguardFiles")
 else:
     print("proguardFiles already referenced")
+
+if os.path.exists(kts_path):
+    mpath = kts_path
+    minify_pattern = r'isMinifyEnabled\s*=\s*true'
+    minify_insert = "isMinifyEnabled = false\n            isShrinkResources = false"
+else:
+    mpath = groovy_path
+    minify_pattern = r'minifyEnabled\s+true'
+    minify_insert = "minifyEnabled false\n            shrinkResources false"
+
+with open(mpath) as f:
+    mcontent = f.read()
+
+if re.search(minify_pattern, mcontent):
+    mcontent = re.sub(minify_pattern, minify_insert, mcontent, count=1)
+    print("Disabled code shrinking for release build")
+else:
+    release_match = re.search(r"(release\s*\{)", mcontent)
+    if release_match and "isMinifyEnabled" not in mcontent and "minifyEnabled" not in mcontent:
+        mcontent = mcontent[:release_match.end()] + "\n            " + minify_insert + "\n" + mcontent[release_match.end():]
+        print("Added code shrinking disable flags to release build")
+    else:
+        print("Could not locate minify flag to patch")
+
+with open(mpath, "w") as f:
+    f.write(mcontent)
