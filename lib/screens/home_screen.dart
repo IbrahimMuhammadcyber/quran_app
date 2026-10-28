@@ -107,6 +107,20 @@ class HomeScreen extends StatelessWidget {
                     );
                   },
                 ),
+                const SizedBox(height: 16),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const PrayerTimesScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.access_time,
+                      color: Colors.white38, size: 18),
+                  label: const Text('Prayer Times',
+                      style: TextStyle(color: Colors.white38)),
+                ),
                 const Spacer(flex: 3),
               ],
             ),
