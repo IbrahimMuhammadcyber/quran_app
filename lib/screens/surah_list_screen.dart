@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/surah.dart';
 import '../services/quran_api_service.dart';
 import '../services/audio_player_service.dart';
@@ -284,6 +285,17 @@ class _SurahTileState extends State<_SurahTile> {
               Text('Total verses (${widget.surah.totalVerses})',
                   style: const TextStyle(color: Colors.white38, fontSize: 12)),
             ],
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.share_outlined,
+                color: Colors.white38, size: 20),
+            onPressed: () {
+              Share.share(
+                'Listen to Surah ${widget.surah.nameTransliteration} '
+                '(${widget.surah.nameArabic}) on Tilawah.',
+              );
+            },
           ),
           const SizedBox(width: 4),
           if (_progress != null)
