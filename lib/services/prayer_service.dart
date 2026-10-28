@@ -83,11 +83,13 @@ class PrayerService {
         scheduled,
         const NotificationDetails(
           android: AndroidNotificationDetails(
-            'prayer_times',
+            'prayer_times_v2',
             'Prayer Times',
             channelDescription: 'Notifications for daily prayer times',
-            importance: Importance.high,
-            priority: Priority.high,
+            importance: Importance.max,
+            priority: Priority.max,
+            playSound: true,
+            sound: RawResourceAndroidNotificationSound('default'),
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
