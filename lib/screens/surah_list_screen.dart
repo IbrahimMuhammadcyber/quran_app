@@ -322,11 +322,4 @@ class _SurahTileState extends State<_SurahTile> {
       ),
     );
   }
-}),
-              onPressed: _downloaded ? null : _download,
-            ),
-        ],
-      ),
-    );
-  }
 }
