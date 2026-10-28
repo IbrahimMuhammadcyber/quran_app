@@ -62,7 +62,7 @@ class QuranApp extends StatelessWidget {
           scaffoldBackgroundColor: const Color(0xFF121212),
           primaryColor: Colors.amber,
         ),
-        home: const SurahListScreen(),
+        home: const HomeScreen(),
       ),
     );
   }
