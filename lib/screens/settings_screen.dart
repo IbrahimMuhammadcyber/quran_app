@@ -78,13 +78,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
       return;
     }
-    await _prayerService.saveLocation(lat, lng);
-    await _prayerService.setEnabled(enabled);
-    setState(() => _prayerEnabled = enabled);
+    try {
+      await _prayerService.saveLocation(lat, lng);
+      await _prayerService.setEnabled(enabled);
+      setState(() => _prayerEnabled = enabled);
 
-    if (enabled) {
-      await _prayerService.requestPermission();
-      await _prayerService.scheduleTodayNotifications(lat, lng);
+      if (enabled) {
+        await _prayerService.requestPermission();
+        await _prayerService.scheduleTodayNotifications(lat, lng);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Prayer notification settings saved')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not schedule notifications: $e')),
+        );
+      }
     }
   }
 
