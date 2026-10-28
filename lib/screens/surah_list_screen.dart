@@ -7,6 +7,7 @@ import '../services/storage_service.dart';
 import '../widgets/mini_player.dart';
 import 'settings_screen.dart';
 import 'search_screen.dart';
+import 'surah_detail_screen.dart';
 
 class SurahListScreen extends StatefulWidget {
   const SurahListScreen({super.key});
@@ -285,7 +286,20 @@ class _SurahTileState extends State<_SurahTile> {
                   style: const TextStyle(color: Colors.white38, fontSize: 12)),
             ],
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.menu_book_outlined,
+                color: Colors.white38, size: 20),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SurahDetailScreen(surah: widget.surah),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 4),
           if (_progress != null)
             SizedBox(
               width: 20,
@@ -302,6 +316,13 @@ class _SurahTileState extends State<_SurahTile> {
                 color: _downloaded ? Colors.amber : Colors.white38,
                 size: 20,
               ),
+              onPressed: _downloaded ? null : _download,
+            ),
+        ],
+      ),
+    );
+  }
+}),
               onPressed: _downloaded ? null : _download,
             ),
         ],
