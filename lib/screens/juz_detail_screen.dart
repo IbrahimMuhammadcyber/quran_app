@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/juz_ayah.dart';
 import '../services/quran_api_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 
 class JuzDetailScreen extends StatefulWidget {
   final int juzNumber;
@@ -22,14 +25,17 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colors.textSecondary),
         title: Text('Juz ${widget.juzNumber}',
-            style: const TextStyle(color: Colors.white70, fontSize: 18)),
+            style: TextStyle(color: colors.textSecondary, fontSize: 18)),
       ),
       body: FutureBuilder<List<JuzAyah>>(
         future: _ayahsFuture,
@@ -43,7 +49,7 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Text('Failed to load: ${snapshot.error}',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70)),
+                    style: TextStyle(color: colors.textSecondary)),
               ),
             );
           }
@@ -64,8 +70,8 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                       padding: const EdgeInsets.only(top: 16, bottom: 12),
                       child: Text(
                         '${ayah.surahNumber}. ${ayah.surahName}',
-                        style: const TextStyle(
-                            color: Color(0xFFD4AF37),
+                        style: TextStyle(
+                            color: colors.accent,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
                       ),
@@ -74,16 +80,16 @@ class _JuzDetailScreenState extends State<JuzDetailScreen> {
                     '${ayah.arabicText} (${ayah.numberInSurah})',
                     textAlign: TextAlign.right,
                     textDirection: TextDirection.rtl,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 20, height: 1.8),
+                    style: TextStyle(
+                        color: colors.textPrimary, fontSize: 20, height: 1.8),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     ayah.translation,
-                    style: const TextStyle(
-                        color: Colors.white54, fontSize: 13, height: 1.4),
+                    style: TextStyle(
+                        color: colors.textMuted, fontSize: 13, height: 1.4),
                   ),
-                  const Divider(color: Colors.white12, height: 32),
+                  Divider(color: colors.divider, height: 32),
                 ],
               );
             },
