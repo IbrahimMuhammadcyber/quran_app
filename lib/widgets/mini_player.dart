@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/audio_player_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -25,11 +27,13 @@ class MiniPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final player = context.watch<AudioPlayerService>();
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
     final surah = player.currentSurah;
     if (surah == null) return const SizedBox.shrink();
 
     return Container(
-      color: const Color(0xFF1A1A1A),
+      color: colors.surface,
       padding: const EdgeInsets.only(top: 4, bottom: 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -52,9 +56,9 @@ class MiniPlayer extends StatelessWidget {
                           const RoundSliderThumbShape(enabledThumbRadius: 5),
                       overlayShape:
                           const RoundSliderOverlayShape(overlayRadius: 10),
-                      activeTrackColor: Colors.amber,
-                      inactiveTrackColor: Colors.white24,
-                      thumbColor: Colors.amber,
+                      activeTrackColor: colors.accent,
+                      inactiveTrackColor: colors.divider,
+                      thumbColor: colors.accent,
                     ),
                     child: Slider(
                       min: 0,
@@ -71,11 +75,11 @@ class MiniPlayer extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(_format(position),
-                            style: const TextStyle(
-                                color: Colors.white54, fontSize: 11)),
+                            style: TextStyle(
+                                color: colors.textMuted, fontSize: 11)),
                         Text(_format(total),
-                            style: const TextStyle(
-                                color: Colors.white54, fontSize: 11)),
+                            style: TextStyle(
+                                color: colors.textMuted, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -87,7 +91,7 @@ class MiniPlayer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               '${surah.nameTransliteration} • ${surah.nameArabic}',
-              style: const TextStyle(color: Colors.white70, fontSize: 13),
+              style: TextStyle(color: colors.textSecondary, fontSize: 13),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -97,19 +101,18 @@ class MiniPlayer extends StatelessWidget {
               IconButton(
                 icon: Icon(_repeatIcon(player.repeatMode),
                     color: player.repeatMode == TilawahRepeatMode.off
-                        ? Colors.white38
-                        : Colors.amber,
+                        ? colors.textFaint
+                        : colors.accent,
                     size: 20),
                 onPressed: player.cycleRepeatMode,
               ),
               IconButton(
-                icon: const Icon(Icons.replay_10,
-                    color: Colors.white70, size: 22),
+                icon: Icon(Icons.replay_10, color: colors.textSecondary, size: 22),
                 onPressed: () =>
                     player.seekRelative(const Duration(seconds: -10)),
               ),
               IconButton(
-                icon: const Icon(Icons.skip_previous, color: Colors.white70),
+                icon: Icon(Icons.skip_previous, color: colors.textSecondary),
                 onPressed: player.playPrevious,
               ),
               IconButton(
@@ -117,25 +120,25 @@ class MiniPlayer extends StatelessWidget {
                   player.isPlaying
                       ? Icons.pause_circle_filled
                       : Icons.play_circle_filled,
-                  color: Colors.white,
+                  color: colors.textPrimary,
                   size: 36,
                 ),
                 onPressed: player.togglePlayPause,
               ),
               IconButton(
-                icon: const Icon(Icons.skip_next, color: Colors.white70),
+                icon: Icon(Icons.skip_next, color: colors.textSecondary),
                 onPressed: player.playNext,
               ),
               IconButton(
-                icon: const Icon(Icons.forward_10,
-                    color: Colors.white70, size: 22),
+                icon: Icon(Icons.forward_10, color: colors.textSecondary, size: 22),
                 onPressed: () =>
                     player.seekRelative(const Duration(seconds: 10)),
               ),
               IconButton(
                 icon: Icon(Icons.shuffle,
-                    color:
-                        player.shuffleEnabled ? Colors.amber : Colors.white38,
+                    color: player.shuffleEnabled
+                        ? colors.accent
+                        : colors.textFaint,
                     size: 20),
                 onPressed: player.toggleShuffle,
               ),
