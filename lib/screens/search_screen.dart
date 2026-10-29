@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/surah.dart';
 import '../services/audio_player_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 
 class SearchScreen extends StatefulWidget {
   final List<Surah> allSurahs;
@@ -17,6 +19,8 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final player = context.read<AudioPlayerService>();
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
     final filtered = widget.allSurahs.where((s) {
       final q = _query.toLowerCase();
       return s.nameTransliteration.toLowerCase().contains(q) ||
@@ -25,17 +29,17 @@ class _SearchScreenState extends State<SearchScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colors.textSecondary),
         title: TextField(
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: TextStyle(color: colors.textPrimary),
+          decoration: InputDecoration(
             hintText: 'Search surah by name or number',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: TextStyle(color: colors.textFaint),
             border: InputBorder.none,
           ),
           onChanged: (value) => setState(() => _query = value),
@@ -43,15 +47,14 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: ListView.separated(
         itemCount: filtered.length,
-        separatorBuilder: (_, __) =>
-            const Divider(height: 1, color: Colors.white12),
+        separatorBuilder: (_, __) => Divider(height: 1, color: colors.divider),
         itemBuilder: (context, index) {
           final surah = filtered[index];
           return ListTile(
             title: Text('${surah.number} - ${surah.nameArabic}',
-                style: const TextStyle(color: Colors.white)),
+                style: TextStyle(color: colors.textPrimary)),
             subtitle: Text(surah.nameTransliteration,
-                style: const TextStyle(color: Colors.white54)),
+                style: TextStyle(color: colors.textMuted)),
             onTap: () {
               player.playSurah(surah, queue: widget.allSurahs);
               Navigator.pop(context);
