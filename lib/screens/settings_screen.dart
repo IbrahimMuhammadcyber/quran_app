@@ -228,6 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(color: Colors.white12, height: 32),
           const Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text('Appearance',
                 style: TextStyle(
@@ -235,15 +236,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
           ),
-          SwitchListTile(
-            activeColor: Colors.amber,
-            title: const Text('Dark mode',
-                style: TextStyle(color: Colors.white)),
-            subtitle: const Text(
-                'Light mode coming soon — currently dark only',
-                style: TextStyle(color: Colors.white38, fontSize: 12)),
-            value: _isDarkMode,
-            onChanged: null,
+          Consumer<ThemeService>(
+            builder: (context, themeService, _) {
+              return SwitchListTile(
+                activeColor: Colors.amber,
+                title: const Text('Dark mode',
+                    style: TextStyle(color: Colors.white)),
+                value: themeService.isDarkMode,
+                onChanged: (value) => themeService.toggle(value),
+              );
+            },
           ),
           const Divider(color: Colors.white12, height: 32),
           const Padding(
