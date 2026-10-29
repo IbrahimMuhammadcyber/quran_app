@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/prayer_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 
 class PrayerTimesScreen extends StatefulWidget {
   const PrayerTimesScreen({super.key});
@@ -63,14 +66,17 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Prayer Times',
-            style: TextStyle(color: Colors.white70, fontSize: 18)),
+        iconTheme: IconThemeData(color: colors.textSecondary),
+        title: Text('Prayer Times',
+            style: TextStyle(color: colors.textSecondary, fontSize: 18)),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -80,24 +86,25 @@ class _PrayerTimesScreenState extends State<PrayerTimesScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Text(_error!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white70)),
+                        style: TextStyle(color: colors.textSecondary)),
                   ),
                 )
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: _times!.entries
                       .map((e) => Card(
-                            color: const Color(0xFF1A1A1A),
+                            color: colors.surface,
                             margin: const EdgeInsets.only(bottom: 12),
                             child: ListTile(
-                              leading: const Icon(Icons.access_time,
-                                  color: Color(0xFFD4AF37)),
+                              leading:
+                                  Icon(Icons.access_time, color: colors.accent),
                               title: Text(e.key,
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 16)),
+                                  style: TextStyle(
+                                      color: colors.textPrimary, fontSize: 16)),
                               trailing: Text(_formatTime(e.value),
-                                  style: const TextStyle(
-                                      color: Colors.white70, fontSize: 15)),
+                                  style: TextStyle(
+                                      color: colors.textSecondary,
+                                      fontSize: 15)),
                             ),
                           ))
                       .toList(),
