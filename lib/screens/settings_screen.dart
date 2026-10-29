@@ -4,6 +4,7 @@ import '../services/audio_player_service.dart';
 import '../services/prayer_service.dart';
 import '../services/location_service.dart';
 import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 
 class Reciter {
   final String id;
@@ -105,29 +106,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final player = context.watch<AudioPlayerService>();
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        title: const Text('Settings', style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Settings', style: TextStyle(color: colors.textPrimary)),
+        iconTheme: IconThemeData(color: colors.textPrimary),
       ),
       body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
             child: Text('Reciter',
                 style: TextStyle(
-                    color: Colors.white70,
+                    color: colors.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
           ),
           ...reciters.map((r) => RadioListTile<String>(
                 value: r.id,
                 groupValue: player.reciter,
-                activeColor: Colors.amber,
+                activeColor: colors.accent,
                 secondary: CircleAvatar(
                   backgroundColor: r.color,
                   child: Text(r.name[0],
@@ -135,17 +138,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
                 title: Text(r.name,
-                    style: const TextStyle(color: Colors.white)),
+                    style: TextStyle(color: colors.textPrimary)),
                 onChanged: (value) {
                   if (value != null) player.setReciter(value);
                 },
               )),
-          const Divider(color: Colors.white12, height: 32),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          Divider(color: colors.divider, height: 32),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text('Prayer Notifications',
                 style: TextStyle(
-                    color: Colors.white70,
+                    color: colors.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
           ),
@@ -166,79 +169,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: Text(
                       _locating ? 'Locating...' : 'Use my current location'),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: colors.accent,
                       foregroundColor: Colors.black),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _latController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: colors.textPrimary),
                   keyboardType: const TextInputType.numberWithOptions(
                       decimal: true, signed: true),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Latitude',
-                    labelStyle: TextStyle(color: Colors.white54),
+                    labelStyle: TextStyle(color: colors.textMuted),
                     enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white24)),
+                        borderSide: BorderSide(color: colors.divider)),
                   ),
                 ),
                 TextField(
                   controller: _lngController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: colors.textPrimary),
                   keyboardType: const TextInputType.numberWithOptions(
                       decimal: true, signed: true),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Longitude',
-                    labelStyle: TextStyle(color: Colors.white54),
+                    labelStyle: TextStyle(color: colors.textMuted),
                     enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white24)),
+                        borderSide: BorderSide(color: colors.divider)),
                   ),
                 ),
                 const SizedBox(height: 8),
                 SwitchListTile(
-                  activeColor: Colors.amber,
-                  title: const Text('Enable prayer notifications',
-                      style: TextStyle(color: Colors.white)),
+                  activeColor: colors.accent,
+                  title: Text('Enable prayer notifications',
+                      style: TextStyle(color: colors.textPrimary)),
                   value: _prayerEnabled,
                   onChanged: _savePrayerSettings,
                 ),
               ],
             ),
           ),
-          const Divider(color: Colors.white12, height: 32),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          Divider(color: colors.divider, height: 32),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text('Appearance',
                 style: TextStyle(
-                    color: Colors.white70,
+                    color: colors.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
           ),
           Consumer<ThemeService>(
             builder: (context, themeService, _) {
               return SwitchListTile(
-                activeColor: Colors.amber,
-                title: const Text('Dark mode',
-                    style: TextStyle(color: Colors.white)),
+                activeColor: colors.accent,
+                title: Text('Dark mode',
+                    style: TextStyle(color: colors.textPrimary)),
                 value: themeService.isDarkMode,
                 onChanged: (value) => themeService.toggle(value),
               );
             },
           ),
-          const Divider(color: Colors.white12, height: 32),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          Divider(color: colors.divider, height: 32),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text('About the Developer',
                 style: TextStyle(
-                    color: Colors.white70,
+                    color: colors.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
           ),
-          const _InfoTile(label: 'Name', value: 'Ibrahim Muhammad Ikara'),
-          const _InfoTile(
-              label: 'Email', value: 'muhammadibrahimikara@gmail.com'),
-          const _InfoTile(label: 'Country', value: 'Nigeria'),
-          const _InfoTile(label: 'Phone', value: '09033874402'),
+          _InfoTile(
+              label: 'Name', value: 'Ibrahim Muhammad Ikara', colors: colors),
+          _InfoTile(
+              label: 'Email',
+              value: 'muhammadibrahimikara@gmail.com',
+              colors: colors),
+          _InfoTile(label: 'Country', value: 'Nigeria', colors: colors),
+          _InfoTile(label: 'Phone', value: '09033874402', colors: colors),
           const SizedBox(height: 24),
         ],
       ),
@@ -249,15 +255,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 class _InfoTile extends StatelessWidget {
   final String label;
   final String value;
-  const _InfoTile({required this.label, required this.value});
+  final AppColors colors;
+  const _InfoTile(
+      {required this.label, required this.value, required this.colors});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(label,
-          style: const TextStyle(color: Colors.white38, fontSize: 13)),
-      subtitle: Text(value,
-          style: const TextStyle(color: Colors.white, fontSize: 16)),
+      title: Text(label, style: TextStyle(color: colors.textFaint, fontSize: 13)),
+      subtitle:
+          Text(value, style: TextStyle(color: colors.textPrimary, fontSize: 16)),
     );
   }
 }
