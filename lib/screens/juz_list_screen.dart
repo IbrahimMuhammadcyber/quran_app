@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 import 'juz_detail_screen.dart';
 
 class JuzListScreen extends StatelessWidget {
@@ -6,19 +9,21 @@ class JuzListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Browse by Juz',
-            style: TextStyle(color: Colors.white70, fontSize: 18)),
+        iconTheme: IconThemeData(color: colors.textSecondary),
+        title: Text('Browse by Juz',
+            style: TextStyle(color: colors.textSecondary, fontSize: 18)),
       ),
       body: ListView.separated(
         itemCount: 30,
-        separatorBuilder: (_, __) =>
-            const Divider(height: 1, color: Colors.white12),
+        separatorBuilder: (_, __) => Divider(height: 1, color: colors.divider),
         itemBuilder: (context, index) {
           final juzNumber = index + 1;
           return ListTile(
@@ -26,16 +31,15 @@ class JuzListScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: colors.card,
                 borderRadius: BorderRadius.circular(8),
               ),
               alignment: Alignment.center,
               child: Text('$juzNumber',
-                  style: const TextStyle(
-                      color: Color(0xFFD4AF37), fontSize: 14)),
+                  style: TextStyle(color: colors.accent, fontSize: 14)),
             ),
             title: Text('Juz $juzNumber',
-                style: const TextStyle(color: Colors.white, fontSize: 16)),
+                style: TextStyle(color: colors.textPrimary, fontSize: 16)),
             onTap: () {
               Navigator.push(
                 context,
