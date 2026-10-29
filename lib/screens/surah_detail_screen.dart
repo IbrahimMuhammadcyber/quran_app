@@ -7,6 +7,8 @@ import '../models/ayah.dart';
 import '../services/quran_api_service.dart';
 import '../services/audio_player_service.dart';
 import '../services/storage_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 
 class SurahDetailScreen extends StatefulWidget {
   final Surah surah;
@@ -59,10 +61,10 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
     });
   }
 
-  Future<void> _showTafsir(int ayahNumber) async {
+  Future<void> _showTafsir(int ayahNumber, AppColors colors) async {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: colors.surface,
       builder: (context) {
         return SafeArea(
           child: Padding(
@@ -79,16 +81,16 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                 if (snapshot.hasError) {
                   return Text(
                     'Tafsir unavailable for this verse right now.',
-                    style: const TextStyle(color: Colors.white54),
+                    style: TextStyle(color: colors.textMuted),
                   );
                 }
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Tafsir Al-Muyassar (Arabic)',
+                    Text('Tafsir Al-Muyassar (Arabic)',
                         style: TextStyle(
-                            color: Color(0xFFD4AF37),
+                            color: colors.accent,
                             fontSize: 13,
                             fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
@@ -96,8 +98,8 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                       snapshot.data ?? '',
                       textAlign: TextAlign.right,
                       textDirection: TextDirection.rtl,
-                      style: const TextStyle(
-                          color: Colors.white, fontSize: 16, height: 1.7),
+                      style: TextStyle(
+                          color: colors.textPrimary, fontSize: 16, height: 1.7),
                     ),
                   ],
                 );
@@ -119,28 +121,30 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final player = context.read<AudioPlayerService>();
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colors.textSecondary),
         title: Text(
           '${widget.surah.number} - ${widget.surah.nameTransliteration}',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: colors.textPrimary, fontSize: 16),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.text_decrease, color: Colors.white70),
+            icon: Icon(Icons.text_decrease, color: colors.textSecondary),
             onPressed: () => _changeFontSize(-2),
           ),
           IconButton(
-            icon: const Icon(Icons.text_increase, color: Colors.white70),
+            icon: Icon(Icons.text_increase, color: colors.textSecondary),
             onPressed: () => _changeFontSize(2),
           ),
           IconButton(
-            icon: const Icon(Icons.play_circle_outline, color: Colors.amber),
+            icon: Icon(Icons.play_circle_outline, color: colors.accent),
             onPressed: () {
               player.playSurah(widget.surah);
             },
@@ -160,7 +164,7 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
                 child: Text(
                   'Failed to load verses: ${snapshot.error}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white70),
+                  style: TextStyle(color: colors.textSecondary),
                 ),
               ),
             );
@@ -172,13 +176,14 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
             padding: const EdgeInsets.all(16),
             itemCount: verses.length,
             separatorBuilder: (_, __) =>
-                const Divider(color: Colors.white12, height: 32),
+                Divider(color: colors.divider, height: 32),
             itemBuilder: (context, index) {
               final ayah = verses[index];
               return _VerseTile(
                 ayah: ayah,
                 fontSize: _fontSize,
-                onTafsirTap: () => _showTafsir(ayah.numberInSurah),
+                colors: colors,
+                onTafsirTap: () => _showTafsir(ayah.numberInSurah, colors),
               );
             },
           );
@@ -191,11 +196,13 @@ class _SurahDetailScreenState extends State<SurahDetailScreen> {
 class _VerseTile extends StatelessWidget {
   final Ayah ayah;
   final double fontSize;
+  final AppColors colors;
   final VoidCallback onTafsirTap;
 
   const _VerseTile({
     required this.ayah,
     required this.fontSize,
+    required this.colors,
     required this.onTafsirTap,
   });
 
@@ -211,18 +218,17 @@ class _VerseTile extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: colors.card,
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
               child: Text(
                 '${ayah.numberInSurah}',
-                style: const TextStyle(color: Colors.amber, fontSize: 12),
+                style: TextStyle(color: colors.accent, fontSize: 12),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.info_outline,
-                  color: Colors.white38, size: 18),
+              icon: Icon(Icons.info_outline, color: colors.textFaint, size: 18),
               onPressed: onTafsirTap,
             ),
           ],
@@ -233,7 +239,7 @@ class _VerseTile extends StatelessWidget {
           textAlign: TextAlign.right,
           textDirection: TextDirection.rtl,
           style: TextStyle(
-            color: Colors.white,
+            color: colors.textPrimary,
             fontSize: fontSize,
             height: 1.8,
           ),
@@ -241,8 +247,8 @@ class _VerseTile extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           ayah.translation,
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: colors.textMuted,
             fontSize: 14,
             height: 1.4,
           ),
