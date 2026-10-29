@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/surah.dart';
 import '../services/quran_api_service.dart';
 import '../services/storage_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 import 'surah_detail_screen.dart';
 import 'juz_list_screen.dart';
 
@@ -40,17 +43,20 @@ class _ReadSurahListScreenState extends State<ReadSurahListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Read Quran',
-            style: TextStyle(color: Colors.white70, fontSize: 18)),
+        iconTheme: IconThemeData(color: colors.textSecondary),
+        title: Text('Read Quran',
+            style: TextStyle(color: colors.textSecondary, fontSize: 18)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.view_list_outlined, color: Colors.white70),
+            icon: Icon(Icons.view_list_outlined, color: colors.textSecondary),
             tooltip: 'Browse by Juz',
             onPressed: () {
               Navigator.push(
@@ -62,7 +68,7 @@ class _ReadSurahListScreenState extends State<ReadSurahListScreen> {
           IconButton(
             icon: Icon(
               _showFavoritesOnly ? Icons.star : Icons.star_border,
-              color: _showFavoritesOnly ? Colors.amber : Colors.white70,
+              color: _showFavoritesOnly ? colors.accent : colors.textSecondary,
             ),
             tooltip: 'Favorites',
             onPressed: () {
@@ -80,7 +86,7 @@ class _ReadSurahListScreenState extends State<ReadSurahListScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text('Failed to load surahs: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.white70)),
+                  style: TextStyle(color: colors.textSecondary)),
             );
           }
           var surahs = snapshot.data!;
@@ -101,17 +107,15 @@ class _ReadSurahListScreenState extends State<ReadSurahListScreen> {
             children: [
               if (lastReadSurah != null)
                 Material(
-                  color: const Color(0xFF1E1E1E),
+                  color: colors.surfaceAlt,
                   child: ListTile(
-                    leading:
-                        const Icon(Icons.menu_book, color: Color(0xFFD4AF37)),
+                    leading: Icon(Icons.menu_book, color: colors.accent),
                     title: Text(
                       'Continue reading: ${lastReadSurah.nameTransliteration}',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: colors.textPrimary),
                     ),
-                    subtitle: Text(
-                        'Ayah ${_lastRead!['ayahNumber']}',
-                        style: const TextStyle(color: Colors.white54)),
+                    subtitle: Text('Ayah ${_lastRead!['ayahNumber']}',
+                        style: TextStyle(color: colors.textMuted)),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -130,14 +134,14 @@ class _ReadSurahListScreenState extends State<ReadSurahListScreen> {
                           _showFavoritesOnly
                               ? 'No favorites yet — tap the star on a surah to add one.'
                               : 'No surahs found.',
-                          style: const TextStyle(color: Colors.white38),
+                          style: TextStyle(color: colors.textFaint),
                           textAlign: TextAlign.center,
                         ),
                       )
                     : ListView.separated(
                         itemCount: surahs.length,
-                        separatorBuilder: (_, __) => const Divider(
-                            height: 1, color: Colors.white12),
+                        separatorBuilder: (_, __) =>
+                            Divider(height: 1, color: colors.divider),
                         itemBuilder: (context, index) {
                           final surah = surahs[index];
                           final isFav = _favorites.contains(surah.number);
@@ -146,34 +150,32 @@ class _ReadSurahListScreenState extends State<ReadSurahListScreen> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF2A2A2A),
+                                color: colors.card,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               alignment: Alignment.center,
                               child: Text('${surah.number}',
-                                  style: const TextStyle(
-                                      color: Color(0xFFD4AF37),
-                                      fontSize: 14)),
+                                  style: TextStyle(
+                                      color: colors.accent, fontSize: 14)),
                             ),
                             title: Text(
                               surah.nameArabic,
                               textAlign: TextAlign.right,
-                              style: const TextStyle(
-                                  color: Colors.white,
+                              style: TextStyle(
+                                  color: colors.textPrimary,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w500),
                             ),
                             subtitle: Text(
                               '${surah.nameTransliteration} • ${surah.totalVerses} verses',
-                              style: const TextStyle(
-                                  color: Colors.white54, fontSize: 13),
+                              style: TextStyle(
+                                  color: colors.textMuted, fontSize: 13),
                             ),
                             trailing: IconButton(
                               icon: Icon(
                                 isFav ? Icons.star : Icons.star_border,
-                                color: isFav
-                                    ? Colors.amber
-                                    : Colors.white38,
+                                color:
+                                    isFav ? colors.accent : colors.textFaint,
                               ),
                               onPressed: () async {
                                 await _storage.toggleFavorite(surah.number);
