@@ -1,25 +1,37 @@
-import 'prayer_times_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 import 'surah_list_screen.dart';
 import 'read_surah_list_screen.dart';
+import 'prayer_times_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.4,
-            colors: [
-              Color(0xFF1C1810),
-              Color(0xFF0D0D0D),
-              Color(0xFF000000),
-            ],
-            stops: [0.0, 0.5, 1.0],
+            colors: isDark
+                ? const [
+                    Color(0xFF1C1810),
+                    Color(0xFF0D0D0D),
+                    Color(0xFF000000),
+                  ]
+                : const [
+                    Color(0xFFFFF6DE),
+                    Color(0xFFFAF4E6),
+                    Color(0xFFFAF7F0),
+                  ],
+            stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: SafeArea(
@@ -52,10 +64,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 28),
-                const Text(
+                Text(
                   'Tilawah',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colors.textPrimary,
                     fontSize: 42,
                     fontWeight: FontWeight.w300,
                     letterSpacing: 4,
@@ -65,16 +77,16 @@ class HomeScreen extends StatelessWidget {
                 Text(
                   'القرآن الكريم',
                   style: TextStyle(
-                    color: const Color(0xFFD4AF37).withOpacity(0.85),
+                    color: colors.accent.withOpacity(0.85),
                     fontSize: 18,
                     letterSpacing: 1,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'Listen and reflect',
                   style: TextStyle(
-                    color: Colors.white38,
+                    color: colors.textFaint,
                     fontSize: 13,
                     letterSpacing: 1.5,
                   ),
@@ -85,6 +97,7 @@ class HomeScreen extends StatelessWidget {
                   label: 'Listen',
                   subtitle: 'Recitation by your favorite reciters',
                   isPrimary: true,
+                  colors: colors,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -99,6 +112,7 @@ class HomeScreen extends StatelessWidget {
                   label: 'Read Quran',
                   subtitle: 'Arabic text with translation',
                   isPrimary: false,
+                  colors: colors,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -116,10 +130,10 @@ class HomeScreen extends StatelessWidget {
                           builder: (_) => const PrayerTimesScreen()),
                     );
                   },
-                  icon: const Icon(Icons.access_time,
-                      color: Colors.white38, size: 18),
-                  label: const Text('Prayer Times',
-                      style: TextStyle(color: Colors.white38)),
+                  icon: Icon(Icons.access_time,
+                      color: colors.textFaint, size: 18),
+                  label: Text('Prayer Times',
+                      style: TextStyle(color: colors.textFaint)),
                 ),
                 const Spacer(flex: 3),
               ],
@@ -136,6 +150,7 @@ class _HomeActionButton extends StatelessWidget {
   final String label;
   final String subtitle;
   final bool isPrimary;
+  final AppColors colors;
   final VoidCallback onTap;
 
   const _HomeActionButton({
@@ -143,6 +158,7 @@ class _HomeActionButton extends StatelessWidget {
     required this.label,
     required this.subtitle,
     required this.isPrimary,
+    required this.colors,
     required this.onTap,
   });
 
@@ -163,15 +179,15 @@ class _HomeActionButton extends StatelessWidget {
                     colors: [Color(0xFFD4AF37), Color(0xFFB8933A)],
                   )
                 : null,
-            color: isPrimary ? null : const Color(0xFF1A1A1A),
+            color: isPrimary ? null : colors.surface,
             border: isPrimary
                 ? null
-                : Border.all(color: Colors.white24, width: 1),
+                : Border.all(color: colors.divider, width: 1),
           ),
           child: Row(
             children: [
               Icon(icon,
-                  color: isPrimary ? Colors.black87 : const Color(0xFFD4AF37),
+                  color: isPrimary ? Colors.black87 : colors.accent,
                   size: 28),
               const SizedBox(width: 16),
               Expanded(
@@ -181,7 +197,7 @@ class _HomeActionButton extends StatelessWidget {
                     Text(
                       label,
                       style: TextStyle(
-                        color: isPrimary ? Colors.black87 : Colors.white,
+                        color: isPrimary ? Colors.black87 : colors.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
@@ -190,9 +206,7 @@ class _HomeActionButton extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: isPrimary
-                            ? Colors.black54
-                            : Colors.white54,
+                        color: isPrimary ? Colors.black54 : colors.textMuted,
                         fontSize: 12,
                       ),
                     ),
@@ -201,7 +215,7 @@ class _HomeActionButton extends StatelessWidget {
               ),
               Icon(Icons.arrow_forward_ios_rounded,
                   size: 16,
-                  color: isPrimary ? Colors.black54 : Colors.white38),
+                  color: isPrimary ? Colors.black54 : colors.textFaint),
             ],
           ),
         ),
