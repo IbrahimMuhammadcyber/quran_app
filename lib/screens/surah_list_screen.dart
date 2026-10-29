@@ -4,6 +4,8 @@ import '../models/surah.dart';
 import '../services/quran_api_service.dart';
 import '../services/audio_player_service.dart';
 import '../services/storage_service.dart';
+import '../services/theme_service.dart';
+import '../theme/app_colors.dart';
 import '../widgets/mini_player.dart';
 import 'settings_screen.dart';
 import 'search_screen.dart';
@@ -34,25 +36,25 @@ class _SurahListScreenState extends State<SurahListScreen> {
     if (mounted) setState(() => _lastPlayed = last);
   }
 
-  void _showSleepTimerSheet(BuildContext context) {
+  void _showSleepTimerSheet(BuildContext context, AppColors colors) {
     final player = context.read<AudioPlayerService>();
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: colors.surface,
       builder: (context) {
         final options = [5, 10, 15, 30, 45, 60];
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Text('Sleep Timer',
-                    style: TextStyle(color: Colors.white, fontSize: 18)),
+                    style: TextStyle(color: colors.textPrimary, fontSize: 18)),
               ),
               ...options.map((minutes) => ListTile(
                     title: Text('$minutes minutes',
-                        style: const TextStyle(color: Colors.white)),
+                        style: TextStyle(color: colors.textPrimary)),
                     onTap: () {
                       player.startSleepTimer(Duration(minutes: minutes));
                       Navigator.pop(context);
@@ -77,31 +79,33 @@ class _SurahListScreenState extends State<SurahListScreen> {
   @override
   Widget build(BuildContext context) {
     final player = context.watch<AudioPlayerService>();
+    final isDark = context.watch<ThemeService>().isDarkMode;
+    final colors = AppColors(isDark);
     final reciterName = reciters
         .firstWhere((r) => r.id == player.reciter,
             orElse: () => reciters.first)
         .name;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colors.surface,
         elevation: 0,
+        iconTheme: IconThemeData(color: colors.textSecondary),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Tilawah',
-                style: TextStyle(color: Colors.white70, fontSize: 18)),
+            Text('Tilawah',
+                style: TextStyle(color: colors.textSecondary, fontSize: 18)),
             if (player.currentSurah != null)
               Text(reciterName,
-                  style: const TextStyle(
-                      color: Colors.white38, fontSize: 11)),
+                  style: TextStyle(color: colors.textFaint, fontSize: 11)),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white70),
+            icon: Icon(Icons.search, color: colors.textSecondary),
             onPressed: () {
               Navigator.push(
                 context,
@@ -112,11 +116,11 @@ class _SurahListScreenState extends State<SurahListScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.timer_outlined, color: Colors.white70),
-            onPressed: () => _showSleepTimerSheet(context),
+            icon: Icon(Icons.timer_outlined, color: colors.textSecondary),
+            onPressed: () => _showSleepTimerSheet(context, colors),
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+            icon: Icon(Icons.settings_outlined, color: colors.textSecondary),
             onPressed: () {
               Navigator.push(
                 context,
@@ -135,7 +139,7 @@ class _SurahListScreenState extends State<SurahListScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text('Failed to load surahs: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.white70)),
+                  style: TextStyle(color: colors.textSecondary)),
             );
           }
           final surahs = snapshot.data!;
@@ -153,15 +157,15 @@ class _SurahListScreenState extends State<SurahListScreen> {
             children: [
               if (lastSurah != null && player.currentSurah == null)
                 Material(
-                  color: const Color(0xFF1E1E1E),
+                  color: colors.surfaceAlt,
                   child: ListTile(
-                    leading: const Icon(Icons.history, color: Colors.amber),
+                    leading: Icon(Icons.history, color: colors.accent),
                     title: Text(
                       'Continue: ${lastSurah.nameTransliteration}',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: colors.textPrimary),
                     ),
-                    subtitle: const Text('Tap to resume',
-                        style: TextStyle(color: Colors.white54)),
+                    subtitle: Text('Tap to resume',
+                        style: TextStyle(color: colors.textMuted)),
                     onTap: () {
                       player.setReciter(_lastPlayed!['reciter']);
                       player.playSurah(
@@ -177,11 +181,12 @@ class _SurahListScreenState extends State<SurahListScreen> {
                 child: ListView.separated(
                   itemCount: surahs.length,
                   separatorBuilder: (_, __) =>
-                      const Divider(height: 1, color: Colors.white12),
+                      Divider(height: 1, color: colors.divider),
                   itemBuilder: (context, index) {
                     final surah = surahs[index];
                     return _SurahTile(
                       surah: surah,
+                      colors: colors,
                       onTap: () {
                         player.playSurah(surah, queue: surahs);
                       },
@@ -202,9 +207,11 @@ class _SurahListScreenState extends State<SurahListScreen> {
 
 class _SurahTile extends StatefulWidget {
   final Surah surah;
+  final AppColors colors;
   final VoidCallback onTap;
 
-  const _SurahTile({required this.surah, required this.onTap});
+  const _SurahTile(
+      {required this.surah, required this.colors, required this.onTap});
 
   @override
   State<_SurahTile> createState() => _SurahTileState();
@@ -251,13 +258,14 @@ class _SurahTileState extends State<_SurahTile> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = widget.colors;
     return ListTile(
       onTap: widget.onTap,
       leading: Container(
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: const Color(0xFF2A2A2A),
+          color: colors.card,
           borderRadius: BorderRadius.circular(6),
         ),
         alignment: Alignment.center,
@@ -266,11 +274,13 @@ class _SurahTileState extends State<_SurahTile> {
       title: Text(
         '${widget.surah.number} - ${widget.surah.nameArabic}',
         textAlign: TextAlign.right,
-        style: const TextStyle(
-            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            color: colors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w500),
       ),
       subtitle: Text(widget.surah.nameTransliteration,
-          style: const TextStyle(color: Colors.white54, fontSize: 15)),
+          style: TextStyle(color: colors.textMuted, fontSize: 15)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -279,10 +289,10 @@ class _SurahTileState extends State<_SurahTile> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(widget.surah.formattedDuration,
-                  style: const TextStyle(color: Colors.white70)),
+                  style: TextStyle(color: colors.textSecondary)),
               const SizedBox(height: 4),
               Text('Total verses (${widget.surah.totalVerses})',
-                  style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                  style: TextStyle(color: colors.textFaint, fontSize: 12)),
             ],
           ),
           const SizedBox(width: 4),
@@ -291,15 +301,13 @@ class _SurahTileState extends State<_SurahTile> {
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
-                  value: _progress, strokeWidth: 2, color: Colors.amber),
+                  value: _progress, strokeWidth: 2, color: colors.accent),
             )
           else
             IconButton(
               icon: Icon(
-                _downloaded
-                    ? Icons.download_done
-                    : Icons.download_outlined,
-                color: _downloaded ? Colors.amber : Colors.white38,
+                _downloaded ? Icons.download_done : Icons.download_outlined,
+                color: _downloaded ? colors.accent : colors.textFaint,
                 size: 20,
               ),
               onPressed: _downloaded ? null : _download,
