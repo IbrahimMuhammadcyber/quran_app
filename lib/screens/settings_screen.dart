@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/audio_player_service.dart';
 import '../services/prayer_service.dart';
 import '../services/location_service.dart';
+import '../services/theme_service.dart';
 
 class Reciter {
   final String id;
@@ -35,13 +35,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _lngController = TextEditingController();
   bool _prayerEnabled = false;
   bool _locating = false;
-  bool _isDarkMode = true;
 
   @override
   void initState() {
     super.initState();
     _loadPrayerSettings();
-    _loadTheme();
   }
 
   Future<void> _loadPrayerSettings() async {
@@ -52,25 +50,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _lngController.text = loc['lng'].toString();
     }
     if (mounted) setState(() => _prayerEnabled = enabled);
-  }
-
-  Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() => _isDarkMode = prefs.getBool('dark_mode') ?? true);
-    }
-  }
-
-  Future<void> _toggleTheme(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('dark_mode', value);
-    setState(() => _isDarkMode = value);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Restart the app for the theme to apply')),
-      );
-    }
   }
 
   Future<void> _useCurrentLocation() async {
@@ -227,7 +206,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const Divider(color: Colors.white12, height: 32),
-          const Padding(
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text('Appearance',
